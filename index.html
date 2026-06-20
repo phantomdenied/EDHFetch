@@ -29,6 +29,20 @@
     align-items: start;
   }
 
+  @media (max-width: 700px) {
+    body { padding: 14px; }
+
+    h1 { font-size: 1.25rem; margin-bottom: 16px; }
+
+    .layout {
+      grid-template-columns: 1fr;
+    }
+
+    .cards-img-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+  }
+
   /* ── Sidebar ── */
   .sidebar {
     background: #16213e;

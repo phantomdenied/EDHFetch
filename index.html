@@ -915,12 +915,15 @@
       <div class="status-msg">Fetching from EDHRec…</div>`;
 
     block.querySelector('.result-header').addEventListener('click', () => {
-      const header   = block.querySelector('.result-header');
-      const body     = block.querySelector('.cards-list, .cards-img-grid, .status-msg');
+      const header    = block.querySelector('.result-header');
+      const body      = block.querySelector('.cards-list, .cards-img-grid, .status-msg');
       if (!body) return;
       const collapsed = header.classList.toggle('collapsed');
       body.style.display = collapsed ? 'none' : '';
     });
+
+    // start collapsed
+    block.querySelector('.result-header').classList.add('collapsed');
 
     return block;
   }
@@ -950,7 +953,9 @@
       lastCards[cmd.slug] = cards;
       badge.textContent = `${cards.length} new card${cards.length !== 1 ? 's' : ''}`;
       badge.className = 'badge';
-      block.replaceChild(renderCards(cards), body);
+      const cardEl = renderCards(cards);
+      cardEl.style.display = 'none';
+      block.replaceChild(cardEl, body);
 
     } catch (err) {
       body.classList.add('error');

@@ -31,16 +31,9 @@
 
   @media (max-width: 700px) {
     body { padding: 14px; }
-
     h1 { font-size: 1.25rem; margin-bottom: 16px; }
-
-    .layout {
-      grid-template-columns: 1fr;
-    }
-
-    .cards-img-grid {
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    }
+    .layout { grid-template-columns: 1fr; }
+    .cards-img-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   }
 
   /* ── Sidebar ── */
@@ -59,12 +52,20 @@
     margin-bottom: 12px;
   }
 
-  .input-wrap {
-    position: relative;
-    margin-bottom: 12px;
+  .input-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #666;
+    margin-bottom: 4px;
   }
 
-  #commander-input {
+  .input-wrap {
+    position: relative;
+    margin-bottom: 10px;
+  }
+
+  .ac-input {
     width: 100%;
     padding: 9px 12px;
     background: #0f3460;
@@ -76,9 +77,32 @@
     transition: border-color 0.2s;
   }
 
-  #commander-input:focus { border-color: #c89b3c; }
+  .ac-input:focus { border-color: #c89b3c; }
 
-  #autocomplete-list {
+  .partner-wrap { margin-bottom: 14px; }
+
+  .partner-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .partner-divider span {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #555;
+    white-space: nowrap;
+  }
+
+  .partner-divider hr {
+    flex: 1;
+    border: none;
+    border-top: 1px solid #2a2a4a;
+  }
+
+  .ac-list {
     position: absolute;
     top: 100%;
     left: 0; right: 0;
@@ -86,21 +110,21 @@
     border: 1px solid #2a4a7a;
     border-top: none;
     border-radius: 0 0 6px 6px;
-    max-height: 220px;
+    max-height: 200px;
     overflow-y: auto;
     z-index: 100;
     display: none;
   }
 
-  #autocomplete-list .ac-item {
+  .ac-list .ac-item {
     padding: 8px 12px;
     cursor: pointer;
     font-size: 0.88rem;
     transition: background 0.15s;
   }
 
-  #autocomplete-list .ac-item:hover,
-  #autocomplete-list .ac-item.active { background: #1a4a8a; }
+  .ac-list .ac-item:hover,
+  .ac-list .ac-item.active { background: #1a4a8a; }
 
   .btn-add {
     width: 100%;
@@ -123,16 +147,20 @@
 
   .commander-tag {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     background: #0f3460;
     border: 1px solid #2a4a7a;
     border-radius: 6px;
     padding: 7px 10px;
     font-size: 0.88rem;
+    gap: 8px;
   }
 
-  .commander-tag span { flex: 1; }
+  .commander-tag-names { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .commander-tag-names .primary { color: #e0e0e0; }
+  .commander-tag-names .partner { color: #888; font-size: 0.78rem; }
+  .commander-tag-names .partner::before { content: '+ '; }
 
   .commander-tag button {
     background: none;
@@ -141,7 +169,8 @@
     cursor: pointer;
     font-size: 1rem;
     line-height: 1;
-    padding: 0 0 0 8px;
+    padding: 2px 0 0 0;
+    flex-shrink: 0;
     transition: color 0.15s;
   }
 
@@ -198,17 +227,12 @@
     flex-shrink: 0;
   }
 
-  .toggle-track.active {
-    background: #1a4a8a;
-    border-color: #c89b3c;
-  }
+  .toggle-track.active { background: #1a4a8a; border-color: #c89b3c; }
 
   .toggle-knob {
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 18px;
-    height: 18px;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
     background: #888;
     border-radius: 50%;
     transition: transform 0.2s, background 0.2s;
@@ -237,22 +261,32 @@
     background: #0f3460;
     cursor: pointer;
     user-select: none;
+    gap: 10px;
   }
+
+  .result-header-titles { flex: 1; }
 
   .result-header h3 {
     font-size: 1rem;
     color: #c89b3c;
+    line-height: 1.3;
   }
 
-  .result-header .meta {
-    font-size: 0.78rem;
+  .result-header .partner-sub {
+    font-size: 0.75rem;
     color: #888;
+    margin-top: 1px;
   }
+
+  .result-header .partner-sub::before { content: '+ '; }
+
+  .result-header .meta { font-size: 0.78rem; color: #888; white-space: nowrap; }
 
   .result-header .chevron {
     color: #888;
     transition: transform 0.2s;
     font-size: 0.9rem;
+    flex-shrink: 0;
   }
 
   .result-header.collapsed .chevron { transform: rotate(-90deg); }
@@ -285,11 +319,7 @@
   }
 
   .card-row:hover .card-name { color: #c89b3c; }
-
-  .card-row .card-stats {
-    display: flex;
-    gap: 20px;
-  }
+  .card-row .card-stats { display: flex; gap: 20px; }
 
   /* ── Image tile view ── */
   .cards-img-grid {
@@ -323,9 +353,7 @@
     min-height: 120px;
   }
 
-  .card-img-info {
-    padding: 7px 9px;
-  }
+  .card-img-info { padding: 7px 9px; }
 
   .card-img-info .card-name {
     color: #e0e0e0;
@@ -340,13 +368,7 @@
 
   .card-img-tile:hover .card-name { color: #c89b3c; }
 
-  /* shared stat styles */
-  .card-stats {
-    display: flex;
-    gap: 8px;
-    font-size: 0.75rem;
-    color: #888;
-  }
+  .card-stats { display: flex; gap: 8px; font-size: 0.75rem; color: #888; }
 
   .stat { display: flex; flex-direction: column; }
   .stat .label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -354,20 +376,10 @@
   .stat .value.pos { color: #5dba7d; }
   .stat .value.neg { color: #e05555; }
 
-  .status-msg {
-    padding: 14px 16px;
-    font-size: 0.85rem;
-    color: #888;
-  }
-
+  .status-msg { padding: 14px 16px; font-size: 0.85rem; color: #888; }
   .status-msg.error { color: #e05555; }
 
-  #placeholder {
-    color: #444;
-    font-size: 0.9rem;
-    text-align: center;
-    margin-top: 60px;
-  }
+  #placeholder { color: #444; font-size: 0.9rem; text-align: center; margin-top: 60px; }
 </style>
 </head>
 <body>
@@ -379,9 +391,20 @@
   <div class="sidebar">
     <h2>My Commanders</h2>
 
-    <div class="input-wrap">
-      <input id="commander-input" type="text" placeholder="Search commander name…" autocomplete="off" />
-      <div id="autocomplete-list"></div>
+    <div class="input-label">Commander</div>
+    <div class="input-wrap" id="primary-wrap">
+      <input class="ac-input" id="primary-input" type="text" placeholder="Search commander name…" autocomplete="off" />
+      <div class="ac-list" id="primary-ac"></div>
+    </div>
+
+    <div class="partner-wrap">
+      <div class="partner-divider">
+        <span>Partner / Background</span><hr>
+      </div>
+      <div class="input-wrap" id="partner-wrap">
+        <input class="ac-input" id="partner-input" type="text" placeholder="Optional…" autocomplete="off" />
+        <div class="ac-list" id="partner-ac"></div>
+      </div>
     </div>
 
     <button class="btn-add" id="btn-add" disabled>+ Add Commander</button>
@@ -396,9 +419,7 @@
   <div>
     <div class="view-toggle" id="view-toggle" style="display:none">
       <span>List</span>
-      <div class="toggle-track" id="toggle-track">
-        <div class="toggle-knob"></div>
-      </div>
+      <div class="toggle-track" id="toggle-track"><div class="toggle-knob"></div></div>
       <span>Card Art</span>
     </div>
 
@@ -410,13 +431,41 @@
 
 <script>
   // ── State ─────────────────────────────────────────────────────────────────
-  const STORAGE_KEY = 'edhrec_commanders';
-  const VIEW_KEY = 'edhrec_view';
+  const STORAGE_KEY = 'edhrec_commanders_v2';
+  const VIEW_KEY    = 'edhrec_view';
+
+  // Each entry: { primary, partner|null, slug, display }
   let commanders = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  let viewMode = localStorage.getItem(VIEW_KEY) || 'list'; // 'list' | 'art'
-  let selectedName = '';
-  let acIndex = -1;
-  let lastCards = {}; // name → cardviews, so re-render doesn't re-fetch
+  let viewMode   = localStorage.getItem(VIEW_KEY) || 'list';
+  let lastCards  = {}; // slug → cardviews
+
+  // Migrate old plain-string format
+  commanders = commanders.map(c =>
+    typeof c === 'string' ? { primary: c, partner: null, slug: toSlug(c), display: c } : c
+  );
+
+  // ── Slugify ───────────────────────────────────────────────────────────────
+  function toSlug(name) {
+    return name.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '-');
+  }
+
+  function buildSlug(primary, partner) {
+    return partner ? `${toSlug(primary)}-${toSlug(partner)}` : toSlug(primary);
+  }
+
+  function buildDisplay(primary, partner) {
+    return partner ? `${primary} + ${partner}` : primary;
+  }
+
+  // ── Persist ───────────────────────────────────────────────────────────────
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(commanders));
+  }
+
+  // ── Scryfall image ────────────────────────────────────────────────────────
+  function scryfallImgUrl(name) {
+    return `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&format=image&version=normal`;
+  }
 
   // ── View toggle ───────────────────────────────────────────────────────────
   const toggleTrack = document.getElementById('toggle-track');
@@ -434,36 +483,147 @@
 
   syncToggleUI();
 
-  // ── Persist commanders ────────────────────────────────────────────────────
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(commanders));
+  // ── Autocomplete factory ──────────────────────────────────────────────────
+  function makeAC(inputEl, acListEl, onSelect) {
+    let selected = '';
+    let index    = -1;
+    let timer;
+
+    inputEl.addEventListener('input', () => {
+      selected = '';
+      onSelect('');
+      clearTimeout(timer);
+      const q = inputEl.value.trim();
+      if (q.length < 2) { acListEl.style.display = 'none'; return; }
+      timer = setTimeout(() => fetchSuggestions(q), 200);
+    });
+
+    async function fetchSuggestions(q) {
+      try {
+        const res  = await fetch(`https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(q)}&include_extras=false`);
+        const data = await res.json();
+        showSuggestions(data.data || []);
+      } catch { acListEl.style.display = 'none'; }
+    }
+
+    function showSuggestions(names) {
+      acListEl.innerHTML = '';
+      index = -1;
+      if (!names.length) { acListEl.style.display = 'none'; return; }
+      names.forEach(name => {
+        const item = document.createElement('div');
+        item.className = 'ac-item';
+        item.textContent = name;
+        item.addEventListener('mousedown', e => { e.preventDefault(); pick(name); });
+        acListEl.appendChild(item);
+      });
+      acListEl.style.display = 'block';
+    }
+
+    function pick(name) {
+      inputEl.value = name;
+      selected = name;
+      acListEl.style.display = 'none';
+      onSelect(name);
+    }
+
+    inputEl.addEventListener('keydown', e => {
+      const items = acListEl.querySelectorAll('.ac-item');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        index = Math.min(index + 1, items.length - 1);
+        items.forEach((el, i) => el.classList.toggle('active', i === index));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        index = Math.max(index - 1, 0);
+        items.forEach((el, i) => el.classList.toggle('active', i === index));
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (index >= 0 && items[index]) pick(items[index].textContent);
+      } else if (e.key === 'Escape') {
+        acListEl.style.display = 'none';
+      }
+    });
+
+    inputEl.addEventListener('change', () => {
+      if (inputEl.value.trim() && !selected) {
+        selected = inputEl.value.trim();
+        onSelect(selected);
+      }
+    });
+
+    return {
+      getValue: () => selected || inputEl.value.trim(),
+      clear:    () => { inputEl.value = ''; selected = ''; acListEl.style.display = 'none'; onSelect(''); }
+    };
   }
 
-  // ── Slugify ───────────────────────────────────────────────────────────────
-  function toSlug(name) {
-    return name.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '-');
+  // ── Wire up autocompletes ─────────────────────────────────────────────────
+  let primaryVal = '';
+  let partnerVal = '';
+
+  const primaryAC = makeAC(
+    document.getElementById('primary-input'),
+    document.getElementById('primary-ac'),
+    v => { primaryVal = v; updateAddBtn(); }
+  );
+
+  const partnerAC = makeAC(
+    document.getElementById('partner-input'),
+    document.getElementById('partner-ac'),
+    v => { partnerVal = v; }
+  );
+
+  function updateAddBtn() {
+    document.getElementById('btn-add').disabled = !primaryVal;
   }
 
-  // ── Scryfall image URL ────────────────────────────────────────────────────
-  function scryfallImgUrl(name) {
-    return `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&format=image&version=normal`;
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#primary-wrap')) document.getElementById('primary-ac').style.display = 'none';
+    if (!e.target.closest('#partner-wrap')) document.getElementById('partner-ac').style.display = 'none';
+  });
+
+  // ── Add commander ─────────────────────────────────────────────────────────
+  function addCommander() {
+    const primary = primaryAC.getValue();
+    const partner = partnerAC.getValue() || null;
+    if (!primary) return;
+
+    const slug = buildSlug(primary, partner);
+    if (commanders.some(c => c.slug === slug)) return;
+
+    commanders.push({ primary, partner, slug, display: buildDisplay(primary, partner) });
+    save();
+    renderSidebar();
+    primaryAC.clear();
+    partnerAC.clear();
+    primaryVal = '';
+    partnerVal = '';
+    updateAddBtn();
   }
 
-  // ── Render sidebar ────────────────────────────────────────────────────────
-  function renderList() {
-    const list = document.getElementById('commander-list');
+  document.getElementById('btn-add').addEventListener('click', addCommander);
+
+  // ── Render sidebar list ───────────────────────────────────────────────────
+  function renderSidebar() {
+    const list     = document.getElementById('commander-list');
     const fetchBtn = document.getElementById('btn-fetch');
-    const hint = document.getElementById('empty-hint');
+    const hint     = document.getElementById('empty-hint');
 
     list.innerHTML = '';
-    commanders.forEach((name, i) => {
+    commanders.forEach((cmd, i) => {
       const tag = document.createElement('div');
       tag.className = 'commander-tag';
-      tag.innerHTML = `<span>${name}</span><button title="Remove" data-i="${i}">✕</button>`;
+      tag.innerHTML = `
+        <div class="commander-tag-names">
+          <span class="primary">${cmd.primary}</span>
+          ${cmd.partner ? `<span class="partner">${cmd.partner}</span>` : ''}
+        </div>
+        <button title="Remove">✕</button>`;
       tag.querySelector('button').addEventListener('click', () => {
         commanders.splice(i, 1);
         save();
-        renderList();
+        renderSidebar();
       });
       list.appendChild(tag);
     });
@@ -472,33 +632,27 @@
     hint.style.display = commanders.length === 0 ? 'block' : 'none';
   }
 
-  // ── Build stat HTML ───────────────────────────────────────────────────────
+  // ── Stat HTML ─────────────────────────────────────────────────────────────
   function statHtml(card) {
-    const synergy = card.synergy != null
-      ? (card.synergy > 0 ? `+${(card.synergy * 100).toFixed(0)}%` : `${(card.synergy * 100).toFixed(0)}%`)
+    const raw = card.synergy;
+    const synergy = raw != null
+      ? (raw > 0 ? `+${(raw * 100).toFixed(0)}%` : `${(raw * 100).toFixed(0)}%`)
       : '—';
-    const synergyClass = card.synergy > 0 ? 'pos' : card.synergy < 0 ? 'neg' : '';
+    const cls       = raw > 0 ? 'pos' : raw < 0 ? 'neg' : '';
     const inclusion = card.inclusion != null ? `${card.inclusion}%` : '—';
-    return `
-      <div class="card-stats">
-        <div class="stat">
-          <span class="label">Synergy</span>
-          <span class="value ${synergyClass}">${synergy}</span>
-        </div>
-        <div class="stat">
-          <span class="label">Inclusion</span>
-          <span class="value">${inclusion}</span>
-        </div>
-      </div>`;
+    return `<div class="card-stats">
+      <div class="stat"><span class="label">Synergy</span><span class="value ${cls}">${synergy}</span></div>
+      <div class="stat"><span class="label">Inclusion</span><span class="value">${inclusion}</span></div>
+    </div>`;
   }
 
-  function cardUrl(card) {
+  function cardHref(card) {
     return card.url
       ? `https://edhrec.com${card.url}`
       : `https://edhrec.com/cards/${card.sanitized || toSlug(card.name)}`;
   }
 
-  // ── Render cards in current view mode ────────────────────────────────────
+  // ── Render cards ──────────────────────────────────────────────────────────
   function renderCards(cards) {
     if (viewMode === 'art') {
       const grid = document.createElement('div');
@@ -506,15 +660,12 @@
       cards.forEach(card => {
         const tile = document.createElement('a');
         tile.className = 'card-img-tile';
-        tile.href = cardUrl(card);
+        tile.href = cardHref(card);
         tile.target = '_blank';
         tile.rel = 'noopener';
         tile.innerHTML = `
           <img src="${scryfallImgUrl(card.name)}" alt="${card.name}" loading="lazy" />
-          <div class="card-img-info">
-            <span class="card-name">${card.name}</span>
-            ${statHtml(card)}
-          </div>`;
+          <div class="card-img-info"><span class="card-name">${card.name}</span>${statHtml(card)}</div>`;
         grid.appendChild(tile);
       });
       return grid;
@@ -524,7 +675,7 @@
       cards.forEach(card => {
         const row = document.createElement('a');
         row.className = 'card-row';
-        row.href = cardUrl(card);
+        row.href = cardHref(card);
         row.target = '_blank';
         row.rel = 'noopener';
         row.innerHTML = `<span class="card-name">${card.name}</span>${statHtml(card)}`;
@@ -534,113 +685,19 @@
     }
   }
 
-  // ── Re-render results with new view mode (no refetch) ────────────────────
   function reRenderAll() {
-    const results = document.getElementById('results');
-    results.querySelectorAll('.result-block').forEach(block => {
-      const name = block.dataset.commander;
-      const cards = lastCards[name];
+    document.getElementById('results').querySelectorAll('.result-block').forEach(block => {
+      const slug  = block.dataset.slug;
+      const cards = lastCards[slug];
       if (!cards) return;
       const existing = block.querySelector('.cards-list, .cards-img-grid');
       if (!existing) return;
-      const wasCollapsed = block.querySelector('.result-header')?.classList.contains('collapsed');
+      const collapsed = block.querySelector('.result-header')?.classList.contains('collapsed');
       const newEl = renderCards(cards);
-      if (wasCollapsed) newEl.style.display = 'none';
+      if (collapsed) newEl.style.display = 'none';
       block.replaceChild(newEl, existing);
     });
   }
-
-  // ── Autocomplete ──────────────────────────────────────────────────────────
-  const input = document.getElementById('commander-input');
-  const acList = document.getElementById('autocomplete-list');
-  let acTimer;
-
-  input.addEventListener('input', () => {
-    const q = input.value.trim();
-    selectedName = '';
-    document.getElementById('btn-add').disabled = true;
-    clearTimeout(acTimer);
-    if (q.length < 2) { acList.style.display = 'none'; return; }
-    acTimer = setTimeout(() => fetchAC(q), 200);
-  });
-
-  async function fetchAC(q) {
-    try {
-      const res = await fetch(
-        `https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(q)}&include_extras=false`
-      );
-      const data = await res.json();
-      showAC(data.data || []);
-    } catch {
-      acList.style.display = 'none';
-    }
-  }
-
-  function showAC(names) {
-    acList.innerHTML = '';
-    acIndex = -1;
-    if (names.length === 0) { acList.style.display = 'none'; return; }
-    names.forEach(name => {
-      const item = document.createElement('div');
-      item.className = 'ac-item';
-      item.textContent = name;
-      item.addEventListener('mousedown', e => { e.preventDefault(); selectAC(name); });
-      acList.appendChild(item);
-    });
-    acList.style.display = 'block';
-  }
-
-  function selectAC(name) {
-    input.value = name;
-    selectedName = name;
-    acList.style.display = 'none';
-    document.getElementById('btn-add').disabled = false;
-  }
-
-  input.addEventListener('keydown', e => {
-    const items = acList.querySelectorAll('.ac-item');
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      acIndex = Math.min(acIndex + 1, items.length - 1);
-      items.forEach((el, i) => el.classList.toggle('active', i === acIndex));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      acIndex = Math.max(acIndex - 1, 0);
-      items.forEach((el, i) => el.classList.toggle('active', i === acIndex));
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (acIndex >= 0 && items[acIndex]) selectAC(items[acIndex].textContent);
-      else if (selectedName) addCommander();
-    } else if (e.key === 'Escape') {
-      acList.style.display = 'none';
-    }
-  });
-
-  input.addEventListener('change', () => {
-    if (input.value.trim()) {
-      selectedName = input.value.trim();
-      document.getElementById('btn-add').disabled = false;
-    }
-  });
-
-  document.addEventListener('click', e => {
-    if (!e.target.closest('.input-wrap')) acList.style.display = 'none';
-  });
-
-  // ── Add commander ─────────────────────────────────────────────────────────
-  function addCommander() {
-    const name = selectedName || input.value.trim();
-    if (!name || commanders.includes(name)) return;
-    commanders.push(name);
-    save();
-    renderList();
-    input.value = '';
-    selectedName = '';
-    document.getElementById('btn-add').disabled = true;
-    acList.style.display = 'none';
-  }
-
-  document.getElementById('btn-add').addEventListener('click', addCommander);
 
   // ── Fetch all ─────────────────────────────────────────────────────────────
   document.getElementById('btn-fetch').addEventListener('click', fetchAll);
@@ -651,20 +708,23 @@
     lastCards = {};
     document.getElementById('view-toggle').style.display = 'flex';
 
-    for (const name of commanders) {
-      const block = createBlock(name);
+    for (const cmd of commanders) {
+      const block = createBlock(cmd);
       results.appendChild(block);
-      await fetchCommander(name, block);
+      await fetchCommander(cmd, block);
     }
   }
 
-  function createBlock(name) {
+  function createBlock(cmd) {
     const block = document.createElement('div');
     block.className = 'result-block';
-    block.dataset.commander = name;
+    block.dataset.slug = cmd.slug;
     block.innerHTML = `
       <div class="result-header">
-        <h3>${name}</h3>
+        <div class="result-header-titles">
+          <h3>${cmd.primary}</h3>
+          ${cmd.partner ? `<div class="partner-sub">${cmd.partner}</div>` : ''}
+        </div>
         <span class="meta">Loading…</span>
         <span class="chevron">▾</span>
       </div>
@@ -672,7 +732,7 @@
 
     block.querySelector('.result-header').addEventListener('click', () => {
       const header = block.querySelector('.result-header');
-      const body = block.querySelector('.cards-list, .cards-img-grid, .status-msg');
+      const body   = block.querySelector('.cards-list, .cards-img-grid, .status-msg');
       if (!body) return;
       const collapsed = header.classList.toggle('collapsed');
       body.style.display = collapsed ? 'none' : '';
@@ -681,42 +741,40 @@
     return block;
   }
 
-  async function fetchCommander(name, block) {
+  async function fetchCommander(cmd, block) {
     const metaEl = block.querySelector('.result-header .meta');
-    const body = block.querySelector('.status-msg');
+    const body   = block.querySelector('.status-msg');
 
     try {
-      const slug = toSlug(name);
-      const res = await fetch(`https://json.edhrec.com/pages/commanders/${slug}.json`);
+      const res = await fetch(`https://json.edhrec.com/pages/commanders/${cmd.slug}.json`);
       if (!res.ok) throw new Error(`EDHRec returned ${res.status}`);
 
-      const data = await res.json();
+      const data      = await res.json();
       const cardlists = data?.container?.json_dict?.cardlists || [];
       const newSection = cardlists.find(cl =>
         cl.tag === 'newcards' || (cl.header || '').toLowerCase().includes('new')
       );
 
-      if (!newSection || !newSection.cardviews?.length) {
-        body.textContent = 'No "New Cards" section found for this commander.';
+      if (!newSection?.cardviews?.length) {
+        body.textContent  = 'No "New Cards" section found for this commander.';
         metaEl.textContent = 'No new cards';
         return;
       }
 
       const cards = newSection.cardviews;
-      lastCards[name] = cards;
+      lastCards[cmd.slug] = cards;
       metaEl.textContent = `${cards.length} new card${cards.length !== 1 ? 's' : ''}`;
-
       block.replaceChild(renderCards(cards), body);
 
     } catch (err) {
       body.classList.add('error');
-      body.textContent = `Error: ${err.message}`;
+      body.textContent   = `Error: ${err.message}`;
       metaEl.textContent = 'Failed';
     }
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────
-  renderList();
+  renderSidebar();
 </script>
 </body>
 </html>

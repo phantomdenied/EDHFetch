@@ -336,19 +336,12 @@
   .toolbar {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 10px;
     margin-bottom: 14px;
-    flex-wrap: wrap;
   }
 
-  .toolbar-label {
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    color: var(--text-dim);
-  }
+  .toolbar-right { display: flex; align-items: center; gap: 8px; }
 
   .view-btn {
     display: flex;
@@ -445,39 +438,59 @@
 
   .result-header.collapsed .chevron { transform: rotate(-90deg); }
 
-  .copy-btn {
-    font-size: 0.72rem;
+  /* ── Checkbox left-strip ── */
+  .check-wrap {
+    display: none;
+    align-self: stretch;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    flex-shrink: 0;
+    cursor: pointer;
+    margin: -14px 0 -14px -18px;
+    padding: 14px;
+    border-right: 2px solid transparent;
+    transition: background 0.12s, border-color 0.12s;
+  }
+
+  .check-wrap:hover { background: rgba(107,79,160,0.12); }
+
+  .check-wrap input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: var(--purple);
+    cursor: pointer;
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+
+  .result-block.selected { border-color: var(--purple); }
+  .result-block.selected .check-wrap { border-right-color: var(--purple); background: rgba(107,79,160,0.1); }
+
+  /* ── Copy footer (inside expanded card list) ── */
+  .copy-list-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 18px;
+    border-top: 1px solid var(--border);
+  }
+
+  .copy-list-footer-btn {
+    font-size: 0.75rem;
     font-weight: 600;
-    padding: 3px 9px;
+    padding: 5px 14px;
     border-radius: 12px;
     background: rgba(100,80,200,0.12);
     border: 1px solid var(--border-lit);
     color: var(--text-dim);
     cursor: pointer;
-    white-space: nowrap;
     letter-spacing: 0.3px;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
-    flex-shrink: 0;
   }
 
-  .copy-btn:hover { background: rgba(100,80,200,0.25); color: var(--text); border-color: var(--purple); }
-  .copy-btn.copied { background: rgba(60,180,100,0.15); color: #5dba7a; border-color: #2d6644; }
+  .copy-list-footer-btn:hover { background: rgba(100,80,200,0.25); color: var(--text); border-color: var(--purple); }
+  .copy-list-footer-btn.copied { background: rgba(60,180,100,0.15); color: #5dba7a; border-color: #2d6644; }
 
-  .check-wrap {
-    display: none;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-    cursor: pointer;
-  }
-
-  .check-wrap input[type="checkbox"] {
-    width: 15px; height: 15px;
-    accent-color: var(--purple);
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-
+  /* ── Toolbar copy-selected ── */
   .copy-selected-btn {
     font-size: 0.78rem;
     font-weight: 600;
@@ -494,8 +507,6 @@
 
   .copy-selected-btn:hover { background: rgba(100,80,200,0.25); color: var(--text); border-color: var(--purple); }
   .copy-selected-btn.copied { background: rgba(60,180,100,0.15); color: #5dba7a; border-color: #2d6644; }
-
-  .toolbar-sep { width: 1px; height: 22px; background: var(--border-lit); flex-shrink: 0; }
 
   /* ── List view ── */
   .cards-list { display: flex; flex-direction: column; }
@@ -681,10 +692,10 @@
   <div class="results-area">
     <div class="toolbar" id="toolbar" style="display:none">
       <button class="copy-selected-btn" id="btn-copy-selected" title="Copy combined list of checked commanders for TCGplayer">Copy Selected</button>
-      <span class="toolbar-sep"></span>
-      <span class="toolbar-label">View</span>
-      <button class="view-btn active" id="btn-list">☰ List</button>
-      <button class="view-btn" id="btn-art">⊞ Card Art</button>
+      <div class="toolbar-right">
+        <button class="view-btn active" id="btn-list">☰ List</button>
+        <button class="view-btn" id="btn-art">⊞ Card Art</button>
+      </div>
     </div>
 
     <div class="results" id="results">
@@ -950,12 +961,11 @@
     document.getElementById('results').querySelectorAll('.result-block').forEach(block => {
       const cards = lastCards[block.dataset.slug];
       if (!cards) return;
-      const existing = block.querySelector('.cards-list, .cards-img-grid');
+      const cardsBody = block.querySelector('.cards-body');
+      if (!cardsBody) return;
+      const existing = cardsBody.querySelector('.cards-list, .cards-img-grid');
       if (!existing) return;
-      const collapsed = block.querySelector('.result-header')?.classList.contains('collapsed');
-      const newEl = renderCards(cards);
-      if (collapsed) newEl.style.display = 'none';
-      block.replaceChild(newEl, existing);
+      cardsBody.replaceChild(renderCards(cards), existing);
     });
   }
 
@@ -987,29 +997,19 @@
           ${cmd.partner ? `<div class="partner-sub">${cmd.partner}</div>` : ''}
         </div>
         <span class="badge loading">Loading…</span>
-        <button class="copy-btn" style="display:none" title="Copy card list for TCGplayer">Copy List</button>
         <span class="chevron">▾</span>
       </div>
       <div class="status-msg">Fetching from EDHRec…</div>`;
 
-    const copyBtn = block.querySelector('.copy-btn');
-    copyBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      const cards = lastCards[block.dataset.slug];
-      if (!cards || !cards.length) return;
-      const text = cards.map(c => `1 ${c.name}`).join('\n');
-      navigator.clipboard.writeText(text).then(() => {
-        copyBtn.textContent = 'Copied!';
-        copyBtn.classList.add('copied');
-        setTimeout(() => { copyBtn.textContent = 'Copy List'; copyBtn.classList.remove('copied'); }, 2000);
-      });
+    block.querySelector('.block-check').addEventListener('change', e => {
+      block.classList.toggle('selected', e.target.checked);
     });
 
     block.querySelector('.check-wrap').addEventListener('click', e => e.stopPropagation());
 
     block.querySelector('.result-header').addEventListener('click', () => {
-      const header    = block.querySelector('.result-header');
-      const body      = block.querySelector('.cards-list, .cards-img-grid, .status-msg');
+      const header = block.querySelector('.result-header');
+      const body   = block.querySelector('.cards-body, .status-msg');
       if (!body) return;
       const collapsed = header.classList.toggle('collapsed');
       body.style.display = collapsed ? 'none' : '';
@@ -1046,11 +1046,30 @@
       lastCards[cmd.slug] = cards;
       badge.textContent = `${cards.length} new card${cards.length !== 1 ? 's' : ''}`;
       badge.className = 'badge';
-      block.querySelector('.copy-btn').style.display = '';
       block.querySelector('.check-wrap').style.display = 'flex';
-      const cardEl = renderCards(cards);
-      cardEl.style.display = 'none';
-      block.replaceChild(cardEl, body);
+
+      const cardEl  = renderCards(cards);
+      const footer  = document.createElement('div');
+      footer.className = 'copy-list-footer';
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-list-footer-btn';
+      copyBtn.textContent = 'Copy List for TCGplayer';
+      copyBtn.addEventListener('click', () => {
+        const text = cards.map(c => `1 ${c.name}`).join('\n');
+        navigator.clipboard.writeText(text).then(() => {
+          copyBtn.textContent = 'Copied!';
+          copyBtn.classList.add('copied');
+          setTimeout(() => { copyBtn.textContent = 'Copy List for TCGplayer'; copyBtn.classList.remove('copied'); }, 2000);
+        });
+      });
+      footer.appendChild(copyBtn);
+
+      const cardsBody = document.createElement('div');
+      cardsBody.className = 'cards-body';
+      cardsBody.appendChild(cardEl);
+      cardsBody.appendChild(footer);
+      cardsBody.style.display = 'none';
+      block.replaceChild(cardsBody, body);
 
     } catch (err) {
       body.classList.add('error');

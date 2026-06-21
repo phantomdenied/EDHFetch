@@ -707,7 +707,9 @@
   let lastCards  = {};
 
   commanders = commanders.map(c =>
-    typeof c === 'string' ? { primary: c, partner: null, slug: toSlug(c), display: c } : c
+    typeof c === 'string'
+      ? { primary: c, partner: null, slug: toSlug(c), display: c }
+      : { ...c, slug: buildSlug(c.primary, c.partner) }
   );
 
   // ── Slugify ───────────────────────────────────────────────────────────────

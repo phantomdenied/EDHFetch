@@ -339,6 +339,7 @@
     justify-content: flex-end;
     gap: 10px;
     margin-bottom: 14px;
+    flex-wrap: wrap;
   }
 
   .toolbar-label {
@@ -443,6 +444,58 @@
   }
 
   .result-header.collapsed .chevron { transform: rotate(-90deg); }
+
+  .copy-btn {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 12px;
+    background: rgba(100,80,200,0.12);
+    border: 1px solid var(--border-lit);
+    color: var(--text-dim);
+    cursor: pointer;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+
+  .copy-btn:hover { background: rgba(100,80,200,0.25); color: var(--text); border-color: var(--purple); }
+  .copy-btn.copied { background: rgba(60,180,100,0.15); color: #5dba7a; border-color: #2d6644; }
+
+  .check-wrap {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .check-wrap input[type="checkbox"] {
+    width: 15px; height: 15px;
+    accent-color: var(--purple);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .copy-selected-btn {
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(100,80,200,0.12);
+    border: 1px solid var(--border-lit);
+    color: var(--text-dim);
+    cursor: pointer;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+
+  .copy-selected-btn:hover { background: rgba(100,80,200,0.25); color: var(--text); border-color: var(--purple); }
+  .copy-selected-btn.copied { background: rgba(60,180,100,0.15); color: #5dba7a; border-color: #2d6644; }
+
+  .toolbar-sep { width: 1px; height: 22px; background: var(--border-lit); flex-shrink: 0; }
 
   /* ── List view ── */
   .cards-list { display: flex; flex-direction: column; }
@@ -627,6 +680,8 @@
   <!-- ── Results ── -->
   <div class="results-area">
     <div class="toolbar" id="toolbar" style="display:none">
+      <button class="copy-selected-btn" id="btn-copy-selected" title="Copy combined list of checked commanders for TCGplayer">Copy Selected</button>
+      <span class="toolbar-sep"></span>
       <span class="toolbar-label">View</span>
       <button class="view-btn active" id="btn-list">☰ List</button>
       <button class="view-btn" id="btn-art">⊞ Card Art</button>
@@ -657,7 +712,7 @@
 
   // ── Slugify ───────────────────────────────────────────────────────────────
   function toSlug(name) {
-    return name.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '-');
+    return name.toLowerCase().replace(/-/g, ' ').replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, '-');
   }
 
   function buildSlug(primary, partner) {
@@ -679,6 +734,23 @@
   // ── View toggle ───────────────────────────────────────────────────────────
   document.getElementById('btn-list').addEventListener('click', () => setView('list'));
   document.getElementById('btn-art').addEventListener('click',  () => setView('art'));
+
+  const copySelectedBtn = document.getElementById('btn-copy-selected');
+  copySelectedBtn.addEventListener('click', () => {
+    const checked = [...document.querySelectorAll('.block-check:checked')];
+    if (!checked.length) { copySelectedBtn.textContent = 'None checked!'; setTimeout(() => { copySelectedBtn.textContent = 'Copy Selected'; }, 1500); return; }
+    const seen = new Set();
+    const lines = [];
+    checked.forEach(cb => {
+      const slug = cb.closest('.result-block').dataset.slug;
+      (lastCards[slug] || []).forEach(c => { if (!seen.has(c.name)) { seen.add(c.name); lines.push(`1 ${c.name}`); } });
+    });
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      copySelectedBtn.textContent = `Copied ${lines.length} cards!`;
+      copySelectedBtn.classList.add('copied');
+      setTimeout(() => { copySelectedBtn.textContent = 'Copy Selected'; copySelectedBtn.classList.remove('copied'); }, 2000);
+    });
+  });
 
   function setView(mode) {
     viewMode = mode;
@@ -905,14 +977,33 @@
     block.dataset.slug = cmd.slug;
     block.innerHTML = `
       <div class="result-header">
+        <label class="check-wrap" title="Include in combined copy">
+          <input type="checkbox" class="block-check" />
+        </label>
         <div class="result-header-titles">
           <h3>${cmd.primary}</h3>
           ${cmd.partner ? `<div class="partner-sub">${cmd.partner}</div>` : ''}
         </div>
         <span class="badge loading">Loading…</span>
+        <button class="copy-btn" style="display:none" title="Copy card list for TCGplayer">Copy List</button>
         <span class="chevron">▾</span>
       </div>
       <div class="status-msg">Fetching from EDHRec…</div>`;
+
+    const copyBtn = block.querySelector('.copy-btn');
+    copyBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const cards = lastCards[block.dataset.slug];
+      if (!cards || !cards.length) return;
+      const text = cards.map(c => `1 ${c.name}`).join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        copyBtn.textContent = 'Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(() => { copyBtn.textContent = 'Copy List'; copyBtn.classList.remove('copied'); }, 2000);
+      });
+    });
+
+    block.querySelector('.check-wrap').addEventListener('click', e => e.stopPropagation());
 
     block.querySelector('.result-header').addEventListener('click', () => {
       const header    = block.querySelector('.result-header');
@@ -953,6 +1044,8 @@
       lastCards[cmd.slug] = cards;
       badge.textContent = `${cards.length} new card${cards.length !== 1 ? 's' : ''}`;
       badge.className = 'badge';
+      block.querySelector('.copy-btn').style.display = '';
+      block.querySelector('.check-wrap').style.display = 'flex';
       const cardEl = renderCards(cards);
       cardEl.style.display = 'none';
       block.replaceChild(cardEl, body);

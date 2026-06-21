@@ -1046,7 +1046,8 @@
 
       const cards = newSection.cardviews;
       lastCards[cmd.slug] = cards;
-      badge.textContent = `${cards.length} new card${cards.length !== 1 ? 's' : ''}`;
+      const total = cards.reduce((sum, c) => sum + (Number(c.price) || 0), 0);
+      badge.textContent = `$${total.toFixed(2)}`;
       badge.className = 'badge';
       block.querySelector('.check-wrap').style.display = 'flex';
 

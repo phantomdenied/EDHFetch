@@ -924,6 +924,20 @@
     </div>`;
   }
 
+  async function fetchPrices(cards) {
+    try {
+      const res = await fetch('https://api.scryfall.com/cards/collection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifiers: cards.map(c => ({ name: c.name })) })
+      });
+      const data = await res.json();
+      const map = {};
+      (data.data || []).forEach(c => { map[c.name] = c.prices?.usd ?? null; });
+      return map;
+    } catch { return {}; }
+  }
+
   function cardHref(card) {
     return card.url
       ? `https://edhrec.com${card.url}`
@@ -1044,7 +1058,9 @@
         return;
       }
 
-      const cards = newSection.cardviews;
+      const cards    = newSection.cardviews;
+      const priceMap = await fetchPrices(cards);
+      cards.forEach(c => { if (priceMap[c.name] != null) c.price = priceMap[c.name]; });
       lastCards[cmd.slug] = cards;
       const total = cards.reduce((sum, c) => sum + (Number(c.price) || 0), 0);
       badge.textContent = `$${total.toFixed(2)}`;

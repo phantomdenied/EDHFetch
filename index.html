@@ -916,9 +916,11 @@
     const synergy   = raw != null ? (raw > 0 ? `+${(raw*100).toFixed(0)}%` : `${(raw*100).toFixed(0)}%`) : '—';
     const cls       = raw > 0 ? 'pos' : raw < 0 ? 'neg' : '';
     const inclusion = card.inclusion != null ? `${card.inclusion}%` : '—';
+    const price     = card.price != null ? `$${Number(card.price).toFixed(2)}` : '—';
     return `<div class="card-stats">
       <div class="stat"><span class="label">Synergy</span><span class="value ${cls}">${synergy}</span></div>
       <div class="stat"><span class="label">In Decks</span><span class="value">${inclusion}</span></div>
+      <div class="stat"><span class="label">Price</span><span class="value">${price}</span></div>
     </div>`;
   }
 
